@@ -1,62 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8">
+        <meta charset="UTF-8">        
+        <script src="https://miro.com/app/static/sdk.1.1.js"></script>
+        <link type="text/css" href="https://miro.com/app/static/miro.uikit.css">
+        <link rel="stylesheet" type="text/css" href="https://miro.com/app/static/styles.1.0.css"/>
+        <link rel="stylesheet" href="modal.css">
     </head>
-
-    <script src="https://miro.com/app/static/sdk.1.1.js"></script>
-    <link type="text/css" href="https://miro.com/app/static/miro.uikit.css">
-    <link rel="stylesheet" type="text/css" href="https://miro.com/app/static/styles.1.0.css"/>
-
-    <style>
-        html {
-          height: 100%;
-        }
-
-        body {
-          height: 100%;
-          margin: 0;
-        }
-
-        .centered {
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-direction: column;
-        }
-
-        .mb-1 {
-            margin-bottom: 1rem;
-        }
-
-        .close-button {
-          position: absolute;
-          right: 16px;
-          top: 16px;
-          width: 24px;
-          height: 24px;
-          opacity: 0.3;
-        }
-        .close-button:hover {
-          opacity: 1;
-        }
-        .close-button:before, .close-button:after {
-          position: absolute;
-          left: 15px;
-          content: ' ';
-          height: 24px;
-          width: 2px;
-          background-color: #333;
-        }
-        .close-button:before {
-          transform: rotate(45deg);
-        }
-        .close-button:after {
-          transform: rotate(-45deg);
-        }
-    </style>
-
     <body class="centered">
         <a href="#" class="close-button"></a>
         <div class="miro-h1 mb-1">Insta Tracker</div>

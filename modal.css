@@ -1,0 +1,46 @@
+html {
+          height: 100%;
+        }
+
+        body {
+          height: 100%;
+          margin: 0;
+        }
+
+        .centered {
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+        }
+
+        .mb-1 {
+            margin-bottom: 1rem;
+        }
+
+        .close-button {
+          position: absolute;
+          right: 16px;
+          top: 16px;
+          width: 24px;
+          height: 24px;
+          opacity: 0.3;
+        }
+        .close-button:hover {
+          opacity: 1;
+        }
+        .close-button:before, .close-button:after {
+          position: absolute;
+          left: 15px;
+          content: ' ';
+          height: 24px;
+          width: 2px;
+          background-color: #333;
+        }
+        .close-button:before {
+          transform: rotate(45deg);
+        }
+        .close-button:after {
+          transform: rotate(-45deg);
+        }
