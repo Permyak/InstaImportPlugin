@@ -4,12 +4,28 @@ const igLogoWidth = 80;
 const igLogoHeight = 80;
 const igNameWidth = 200;
 const igStatWidth = 150;
+const doubleArrowURL = "https://image.flaticon.com/icons/svg/25/25358.svg";
+const APP_ID = '3074457347020167168'
+
+window.onload = function() {
+  let searchButton = document.querySelector('.search-button');
+    if (searchButton){
+        searchButton.focus(); 
+    }
+}
 
 let closeButton = document.querySelector('.close-button');
 if (closeButton){
     closeButton.addEventListener('click', () => {
         miro.board.ui.closeModal();
     })
+}
+
+let showHideLoading= function(isLoading){
+    let loadingElem = document.querySelector('#loading');
+    if (loadingElem){
+        loadingElem.style.display = isLoading ? "inherit" : "none";
+    }
 }
 
 let setValid = function(isValid){
@@ -33,11 +49,11 @@ let setValid = function(isValid){
 
     let usernameStatusText = document.querySelector('.username-input .status-text');
     if (usernameStatusText){
-        usernameStatusText.style.display = isValid ? "none" : "flex";
+        usernameStatusText.style.display = isValid ? "none" : "inherit";
     }
 }
 
-function getBaseShape(){
+function getBaseShape(igUserName, igUserID){
     return {
         type: 'shape',
         x: 0,
@@ -53,35 +69,61 @@ function getBaseShape(){
         },
         capabilities: {
             editable: false
+        },
+        metadata: {
+            [APP_ID]: {
+                isBaseShape: true,
+                igUserName: igUserName,
+                igUserID: igUserID
+            },
         }
     }
 }
 
-function getLogoImage(url){
+function getLogoImage(url, igUserName){
     return {
-        type: 'shape',
+        type: 'IMAGE',
         x: - baseShapeWidth / 2 + 10 + igLogoWidth / 2,
         y: 0,
-        width: igLogoWidth,
-        height: igLogoHeight,
-        style: {
-            shapeType: 7,
-            backgroundColor: "#827F9B"
-        },
+        url: url,
         capabilities: {
             editable: false
+        },
+        metadata: {
+            [APP_ID]: {
+                igUserName: igUserName,
+            },
         }
     }
 }
 
-function getInstNameText(name){
+function getDownArrow(url, igUserName, igUserID){
+    return {
+        type: 'IMAGE',
+        x: 0,
+        y: + baseShapeHeight * 3 / 8,
+        url: url,
+        capabilities: {
+            editable: false
+        },
+        metadata: {
+            [APP_ID]: {
+                isDownArrow: true,
+                igUserName: igUserName,
+                igUserID: igUserID
+            },
+        }
+    }
+}
+
+function getInstNameText(name, igUserName){
     return {
         type: 'shape',
         text: name,
         x: - baseShapeWidth / 2 + 110 + igNameWidth / 2,
         y: + baseShapeHeight * 3 / 16,
         width: igNameWidth,
-        //height: igNameWidth,
+        height: baseShapeHeight * 3 / 16 * 2,
         style: {
             shapeType: 7,
             backgroundColor: "#FFFFFF",
@@ -95,18 +137,23 @@ function getInstNameText(name){
         },
         capabilities: {
             editable: false
+        },
+        metadata: {
+            [APP_ID]: {
+                igUserName: igUserName,
+            },
         }
     }
 }
 
-function getInstLoginText(name){
+function getInstLoginText(name, igUserName){
     return {
         type: 'shape',
         text: name,
         x: - baseShapeWidth / 2 + 110 + igNameWidth / 2,
         y: - baseShapeHeight * 3 / 16,
         width: igNameWidth,
-        //height: igNameWidth,
+        height: baseShapeHeight * 3 / 16 * 2 ,
         style: {
             shapeType: 7,
             backgroundColor: "#FFFFFF",
@@ -119,19 +166,24 @@ function getInstLoginText(name){
             bold: 1
         },
         capabilities: {
-            //editable: false
+            editable: false
+        },
+        metadata: {
+            [APP_ID]: {
+                igUserName: igUserName,
+            },
         }
     }
 }
 
-function getInstStatText(name, xIndex){
+function getInstStatText(name, xIndex, igUserName){
     return {
         type: 'shape',
         text: name,
         x: + baseShapeWidth / 2 - 10 - igStatWidth * (1/2 + xIndex),
         y: - baseShapeHeight * 3 / 16,
         width: igNameWidth,
-        //height: igNameWidth,
+        height: baseShapeHeight * 3 / 16 * 2,
         style: {
             shapeType: 7,
             backgroundColor: "#FFFFFF",
@@ -144,19 +196,24 @@ function getInstStatText(name, xIndex){
             bold: 1
         },
         capabilities: {
-            //editable: false
+            editable: false
+        },
+        metadata: {
+            [APP_ID]: {
+                igUserName: igUserName,
+            },
         }
     }
 }
 
-function getInstStatValue(name, xIndex){
+function getInstStatValue(name, xIndex, igUserName){
     return {
         type: 'shape',
         text: name,
         x: + baseShapeWidth / 2 - 10 - igStatWidth * (1/2 + xIndex),
         y: + baseShapeHeight * 3 / 16,
         width: igNameWidth,
-        //height: igNameWidth,
+        height: baseShapeHeight * 3 / 16 * 2,
         style: {
             shapeType: 7,
             backgroundColor: "#FFFFFF",
@@ -169,28 +226,101 @@ function getInstStatValue(name, xIndex){
             bold: 1
         },
         capabilities: {
-            //editable: false
+            editable: false
+        },
+        metadata: {
+            [APP_ID]: {
+                igUserName: igUserName,
+            },
         }
+    }
+}
+
+function isBaseShapeWidget(widget) {
+    return widget.metadata[APP_ID] && widget.metadata[APP_ID].isBaseShape;
+}
+
+function isUserWidget(widget, username) {
+    return widget.metadata[APP_ID] && widget.metadata[APP_ID].igUserName === username;
+}
+
+function updateCardForUser(userInfo, xDelta, yDelta) {
+    miro.board.widgets.get().then(shapes => {
+        userShapes = shapes.filter(shape => isUserWidget(shape, userInfo.username));        
+        miro.board.widgets.deleteById(userShapes.map(userShape => userShape.id)).then(data => {            
+            createCardForUser(userInfo, xDelta, yDelta);  
+        })
+    })
+}
+
+function createCardForUser(userInfo, xDelta, yDelta) {
+    let widgets = [];
+    widgets.push(getBaseShape(userInfo.username, userInfo.id));
+    widgets.push(getLogoImage(userInfo.profile_pic_url_hd, userInfo.username));                
+    widgets.push(getDownArrow(doubleArrowURL, userInfo.username, userInfo.id));
+    widgets.push(getInstNameText(userInfo.full_name, userInfo.username));
+    widgets.push(getInstLoginText('@' + userInfo.username, userInfo.username));
+    widgets.push(getInstStatText('Folowers', 0, userInfo.username));
+    widgets.push(getInstStatValue(formatNumberToAverage(userInfo.edge_followed_by ? userInfo.edge_followed_by.count : 0), 0, userInfo.username));
+    widgets.push(getInstStatText('Uploads', 1, userInfo.username));
+    widgets.push(getInstStatValue(formatNumberToAverage(userInfo.edge_owner_to_timeline_media ? userInfo.edge_owner_to_timeline_media.count : 0), 1, userInfo.username));
+    miro.board.widgets.create(widgets).then(wdgts => {
+        // Image scale isn't working.
+        let logoImg = {
+            id: wdgts[1].id,
+            scale: igLogoWidth/wdgts[1].bounds.width
+        }
+        let arrowImg = {
+            id: wdgts[2].id,
+            scale: 1/25,
+            rotation: 90
+        }
+        miro.board.widgets.update([logoImg, arrowImg]).then(updtwdgts => {
+            if (xDelta || yDelta){
+                miro.board.widgets.transformDelta(wdgts.map(widget => widget.id), xDelta, yDelta)
+            }
+
+            showHideLoading(false);
+            miro.board.ui.closeModal();                        
+        })
+    });
+}
+
+function showIgUserInfo(userInfo){
+    if (!userInfo){
+        setValid(false);
+        showHideLoading(false);
+    }
+
+    if (userInfo && miro){
+        miro.board.widgets.get({type: 'shape'}).then(shapes => {
+            let baseShapeExisted = shapes.filter(shape => isBaseShapeWidget(shape) && isUserWidget(shape, userInfo.username));
+            if (baseShapeExisted && baseShapeExisted.length){
+                if (confirm('This board has card for @' + userInfo.username + '. Do you want refresh it?')) {
+                    let baseShapeX = baseShapeExisted[0].bounds.x;
+                    let baseShapeY = baseShapeExisted[0].bounds.y;
+                    updateCardForUser(userInfo, baseShapeX, baseShapeY);
+                } else {
+                    showHideLoading(false);
+                }
+            } else {
+                createCardForUser(userInfo);        
+            }    
+        });        
     }
 }
 
 let validate = function(){
     let usernameInput = document.querySelector('.username-input .miro-input');
-    //let isValid = usernameInput && (usernameInput.value.toLowerCase() === "mirohq" || usernameInput.value.toLowerCase() === "@mirohq");
-    let isValid = true;
+    let username = usernameInput.value.toLowerCase();
+    let regex = RegExp('(@?[A-Za-z0-9._](?:(?:[A-Za-z0-9._]|(?:\.(?!\.))){2,28}(?:[A-Za-z0-9._]))?)');
+    let isValid = regex.test(username);
     setValid(isValid);
-    if (true){
-        let widgets = []
-        widgets.push(getBaseShape());
-        widgets.push(getLogoImage('https://scontent-arn2-1.cdninstagram.com/vp/2f6b4b0fac0385a2f77625f9900a3965/5E57E650/t51.2885-19/s320x320/52703034_780107255705290_1686152710996361216_n.jpg?_nc_ht=scontent-arn2-1.cdninstagram.com'));
-        widgets.push(getInstNameText('Miro'));
-        widgets.push(getInstLoginText('@mirohq'));
-        widgets.push(getInstStatText('Folowers', 0));
-        widgets.push(getInstStatValue('1,6K', 0));
-        widgets.push(getInstStatText('Uploads', 1));
-        widgets.push(getInstStatValue('26', 1));
-        miro.board.widgets.create(widgets)
-        miro.board.ui.closeModal();
+    if (isValid){
+        if (getIgUserInfo){
+            showHideLoading(true);
+            getIgUserInfo(username.replace(/^@/, ''), showIgUserInfo)
+        }
     }
 }
 
