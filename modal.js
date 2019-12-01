@@ -6,7 +6,7 @@ const igNameWidth = 200;
 const igStatWidth = 150;
 const doubleArrowURL = "https://image.flaticon.com/icons/svg/25/25358.svg";
 const refreshButtonURL = "https://image.flaticon.com/icons/svg/159/159612.svg";
-const APP_ID = '3074457347020167168'
+const APP_ID = '3074457347056899256'
 
 window.onload = function() {
   let searchButton = document.querySelector('.search-button');
