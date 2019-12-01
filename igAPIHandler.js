@@ -29,7 +29,7 @@ function getIgUserInfo(username, callback){
     httpGetAsync("https://www.instagram.com/" + username, profileLoadedCallback);
 }
 
-function getIgUserContent(userID, callback){
+function getIgUserContent(metaInfo, callback){
     function contentLoadedCallback(data){
         if (!data){
             callback(null);
@@ -39,7 +39,11 @@ function getIgUserContent(userID, callback){
             callback(JSON.parse(data), userID);
         }
     }
-    var url = 'https://www.instagram.com/graphql/query/?query_id=17888483320059182&variables={"id":"'+userID+'","first":5,"after":null}'
+
+    var userID = metaInfo.igUserID;
+    var afterCursor = metaInfo.end_cursor ? ('"' + metaInfo.end_cursor + '"') : "null";
+
+    var url = 'https://www.instagram.com/graphql/query/?query_id=17888483320059182&variables={"id":"'+userID+'","first":9,"after":'+afterCursor+'}'
 
     httpGetAsync(url, contentLoadedCallback);
 }

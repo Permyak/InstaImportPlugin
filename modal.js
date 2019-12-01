@@ -5,6 +5,7 @@ const igLogoHeight = 80;
 const igNameWidth = 200;
 const igStatWidth = 150;
 const doubleArrowURL = "https://image.flaticon.com/icons/svg/25/25358.svg";
+const refreshButtonURL = "https://image.flaticon.com/icons/svg/159/159612.svg";
 const APP_ID = '3074457347020167168'
 
 window.onload = function() {
@@ -109,6 +110,25 @@ function getDownArrow(url, igUserName, igUserID){
         metadata: {
             [APP_ID]: {
                 isDownArrow: true,
+                igUserName: igUserName,
+                igUserID: igUserID
+            },
+        }
+    }
+}
+
+function getRefreshButton(url, igUserName, igUserID){
+    return {
+        type: 'IMAGE',
+        x: baseShapeWidth / 2 - 20,
+        y: - baseShapeHeight / 2 + 20,
+        url: url,
+        capabilities: {
+            editable: false
+        },
+        metadata: {
+            [APP_ID]: {
+                isRefreshButton: true,
                 igUserName: igUserName,
                 igUserID: igUserID
             },
@@ -253,11 +273,18 @@ function updateCardForUser(userInfo, xDelta, yDelta) {
     })
 }
 
+function isDownArrowVisible(userInfo){
+    return !userInfo.is_private && userInfo.edge_owner_to_timeline_media.count;
+}
+
 function createCardForUser(userInfo, xDelta, yDelta) {
     let widgets = [];
     widgets.push(getBaseShape(userInfo.username, userInfo.id));
-    widgets.push(getLogoImage(userInfo.profile_pic_url_hd, userInfo.username));                
-    widgets.push(getDownArrow(doubleArrowURL, userInfo.username, userInfo.id));
+    widgets.push(getLogoImage(userInfo.profile_pic_url_hd, userInfo.username));
+    widgets.push(getRefreshButton(refreshButtonURL, userInfo.username, userInfo.id));
+    if (isDownArrowVisible(userInfo)){            
+        widgets.push(getDownArrow(doubleArrowURL, userInfo.username, userInfo.id));
+    }
     widgets.push(getInstNameText(userInfo.full_name, userInfo.username));
     widgets.push(getInstLoginText('@' + userInfo.username, userInfo.username));
     widgets.push(getInstStatText('Folowers', 0, userInfo.username));
@@ -265,17 +292,24 @@ function createCardForUser(userInfo, xDelta, yDelta) {
     widgets.push(getInstStatText('Uploads', 1, userInfo.username));
     widgets.push(getInstStatValue(formatNumberToAverage(userInfo.edge_owner_to_timeline_media ? userInfo.edge_owner_to_timeline_media.count : 0), 1, userInfo.username));
     miro.board.widgets.create(widgets).then(wdgts => {
+        let updWidgets = []
         // Image scale isn't working.
-        let logoImg = {
+        updWidgets.push({
             id: wdgts[1].id,
             scale: igLogoWidth/wdgts[1].bounds.width
-        }
-        let arrowImg = {
+        });
+        updWidgets.push({
             id: wdgts[2].id,
-            scale: 1/25,
-            rotation: 90
+            scale: 1/30
+        });
+        if (isDownArrowVisible(userInfo)){
+            updWidgets.push({
+                id: wdgts[3].id,
+                scale: 1/25,
+                rotation: 90
+            });
         }
-        miro.board.widgets.update([logoImg, arrowImg]).then(updtwdgts => {
+        miro.board.widgets.update(updWidgets).then(updtwdgts => {
             if (xDelta || yDelta){
                 miro.board.widgets.transformDelta(wdgts.map(widget => widget.id), xDelta, yDelta)
             }
@@ -296,7 +330,7 @@ function showIgUserInfo(userInfo){
         miro.board.widgets.get({type: 'shape'}).then(shapes => {
             let baseShapeExisted = shapes.filter(shape => isBaseShapeWidget(shape) && isUserWidget(shape, userInfo.username));
             if (baseShapeExisted && baseShapeExisted.length){
-                if (confirm('This board has card for @' + userInfo.username + '. Do you want refresh it?')) {
+                if (confirm('This board has the card for @' + userInfo.username + '. Do you want refresh it?')) {
                     let baseShapeX = baseShapeExisted[0].bounds.x;
                     let baseShapeY = baseShapeExisted[0].bounds.y;
                     updateCardForUser(userInfo, baseShapeX, baseShapeY);
@@ -306,6 +340,19 @@ function showIgUserInfo(userInfo){
             } else {
                 createCardForUser(userInfo);        
             }    
+        });        
+    }
+}
+
+function showIgUserInfoFromBoard(userInfo){
+    if (userInfo && miro){
+        miro.board.widgets.get({type: 'shape'}).then(shapes => {
+            let baseShapeExisted = shapes.filter(shape => isBaseShapeWidget(shape) && isUserWidget(shape, userInfo.username));
+            if (baseShapeExisted && baseShapeExisted.length){
+                let baseShapeX = baseShapeExisted[0].bounds.x;
+                let baseShapeY = baseShapeExisted[0].bounds.y;
+                updateCardForUser(userInfo, baseShapeX, baseShapeY);
+            }
         });        
     }
 }

@@ -67,3 +67,11 @@ body {
 @-webkit-keyframes spin {
   to { -webkit-transform: rotate(360deg); }
 }
+
+
+.infoLabel {
+  font-weight: bold;
+}
+.infoRecord {
+  width: 400px;
+}
