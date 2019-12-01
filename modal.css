@@ -5,6 +5,7 @@ html {
 body {
   height: 100%;
   margin: 0;
+  background-color: #F5F5F7;
 }
 
 .centered {
@@ -74,4 +75,9 @@ body {
 }
 .infoRecord {
   width: 400px;
+}
+
+#commentValue {
+  overflow-y: scroll;
+  max-height: 150px;
 }
