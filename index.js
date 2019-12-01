@@ -42,7 +42,7 @@ function checkSelection(selectedWidgets) {
         comment: data.edge_media_to_caption.edges[0].node.text
       }
       localStorage.setItem('currentIgPostData', JSON.stringify(igPostData))
-      miro.board.ui.openModal('postdetailsPopup.html', { width: 450, height: 300 });      
+      miro.board.ui.openModal('postDetailsPopup.html', { width: 450, height: 300 });      
     }
   }
 }
